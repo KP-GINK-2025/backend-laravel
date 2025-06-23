@@ -1,9 +1,9 @@
 <?php
 
-use Admin\UnitController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin as Admin;
+use App\Http\Controllers\Admin\klasifikasiInstansi as KlasifikasiInstansi;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\FrontendController;
 
@@ -39,10 +39,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('users/resetpassword', [Admin\UserController::class, 'resetpassword']);
     Route::resource('users', Admin\UserController::class);
 
-    Route::resource('bidang', Admin\BidangController::class);
-    Route::resource('unit', Admin\UnitController::class);
-    Route::resource('subunit', Admin\SubUnitController::class);
-    Route::resource('upb', Admin\UpbController::class);
+    Route::resource('bidang', KlasifikasiInstansi\BidangController::class);
+    Route::resource('unit', KlasifikasiInstansi\UnitController::class);
+    Route::resource('subunit', KlasifikasiInstansi\SubUnitController::class);
+    Route::resource('upb', KlasifikasiInstansi\UpbController::class);
 
     Route::get('profile', [Admin\ProfileController::class, 'index']);
     Route::put('profile/{id}', [Admin\ProfileController::class, 'update']);

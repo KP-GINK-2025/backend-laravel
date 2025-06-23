@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\klasifikasiInstansi;
 
 use App\Models\Bidang;
 use App\Models\Unit;
