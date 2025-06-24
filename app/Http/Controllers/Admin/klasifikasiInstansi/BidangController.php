@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\klasifikasiInstansi;
 
 use App\Models\User;
-use App\Models\Bidang;
+use App\Models\klasifikasiInstansi\Bidang;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

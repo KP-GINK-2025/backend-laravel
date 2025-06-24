@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Admin\klasifikasiInstansi;
 
-use App\Models\Upb;
-use App\Models\Unit;
-use App\Models\Bidang;
+use App\Models\klasifikasiInstansi\Upb;
+use App\Models\klasifikasiInstansi\Unit;
+use App\Models\klasifikasiInstansi\Bidang;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\SubUnit;
+use App\Models\klasifikasiInstansi\SubUnit;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
