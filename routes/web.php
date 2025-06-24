@@ -46,6 +46,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('upb', KlasifikasiInstansi\UpbController::class);
 
     Route::resource('akunaset', klasifikasiAset\AkunAsetController::class);
+    Route::resource('kelompokaset', klasifikasiAset\KelompokAsetController::class);
 
     Route::get('profile', [Admin\ProfileController::class, 'index']);
     Route::put('profile/{id}', [Admin\ProfileController::class, 'update']);

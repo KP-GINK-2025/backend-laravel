@@ -3,10 +3,10 @@
 namespace App\Models\klasifikasiAset;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class AkunAset extends Model
+class KelompokAset extends Model
 {
     use HasFactory;
 
@@ -14,8 +14,8 @@ class AkunAset extends Model
         'id'
     ];
 
-    public function unit(): HasMany
+    public function akun_aset(): BelongsTo
     {
-        return $this->hasMany(KelompokAset::class);
+        return $this->belongsTo(AkunAset::class);
     }
 }

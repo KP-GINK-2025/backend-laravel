@@ -102,6 +102,9 @@
             @if (auth()->user()->hasPermissionTo('akunaset-list') || auth()->user()->hasRole('Super Admin'))
                 <li><a href="admin/akunaset"><i class="fa-solid fa-users"></i> <span>Akun Aset</span></a></li>
             @endif
+            @if (auth()->user()->hasPermissionTo('kelompokaset-list') || auth()->user()->hasRole('Super Admin'))
+                <li><a href="admin/kelompokaset"><i class="fa-solid fa-users"></i> <span>Kelompok Aset</span></a></li>
+            @endif
         </ul>
     </div>
 @endsection
