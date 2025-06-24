@@ -99,6 +99,9 @@
             @if (auth()->user()->hasPermissionTo('upb-list') || auth()->user()->hasRole('Super Admin'))
                 <li><a href="admin/upb"><i class="fa-solid fa-users"></i> <span>UPB</span></a></li>
             @endif
+            @if (auth()->user()->hasPermissionTo('akunaset-list') || auth()->user()->hasRole('Super Admin'))
+                <li><a href="admin/akunaset"><i class="fa-solid fa-users"></i> <span>Akun Aset</span></a></li>
+            @endif
         </ul>
     </div>
 @endsection
