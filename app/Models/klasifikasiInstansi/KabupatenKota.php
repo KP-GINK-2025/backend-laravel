@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Bidang extends Model
+class KabupatenKota extends Model
 {
     use HasFactory;
 
@@ -15,13 +15,13 @@ class Bidang extends Model
         'id'
     ];
 
-    public function kabupaten_kota(): BelongsTo
+    public function provinsi(): BelongsTo
     {
-        return $this->belongsTo(KabupatenKota::class);
+        return $this->belongsTo(Provinsi::class);
     }
 
-    public function unit(): HasMany
+    public function bidang(): HasMany
     {
-        return $this->hasMany(Unit::class);
+        return $this->hasMany(Bidang::class);
     }
 }

@@ -44,6 +44,8 @@
                     <thead>
                         <tr>
                             <th>Action</th>
+                            <th>Provinsi</th>
+                            <th>Kabupaten/kota</th>
                             <th>Kode Bidang</th>
                             <th>Nama</th>
                             <th>Kode</th>
@@ -112,6 +114,14 @@
                         className: 'text-center',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'provinsi',
+                        name: 'provinsi'
+                    },
+                    {
+                        data: 'kabupaten_kota',
+                        name: 'kabupaten_kota'
                     },
                     {
                         data: 'kode_bidang',

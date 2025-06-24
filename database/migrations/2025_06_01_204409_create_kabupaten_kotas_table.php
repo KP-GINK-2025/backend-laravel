@@ -10,12 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('bidangs', function (Blueprint $table) {
+        Schema::create('kabupaten_kotas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kabupaten_kota_id')->constrained()->onDelete('cascade');
-            $table->integer('kode_bidang')->unique();
-            $table->string('nama_bidang')->unique();
-            $table->string('kode', 50)->default('');
+            $table->foreignId('provinsi_id')->constrained()->onDelete('cascade');
+            $table->integer('kode_kabupaten_kota')->unique();
+            $table->string('nama_kabupaten_kota')->unique();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('bidangs');
+        Schema::dropIfExists('kabupaten_kotas');
     }
 };
