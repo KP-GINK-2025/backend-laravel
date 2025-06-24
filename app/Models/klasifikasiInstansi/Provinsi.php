@@ -4,10 +4,9 @@ namespace App\Models\klasifikasiInstansi;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Bidang extends Model
+class Provinsi extends Model
 {
     use HasFactory;
 
@@ -15,13 +14,8 @@ class Bidang extends Model
         'id'
     ];
 
-    public function kabupaten_kota(): BelongsTo
+    public function kabupaten_kota(): HasMany
     {
-        return $this->belongsTo(KabupatenKota::class);
-    }
-
-    public function unit(): HasMany
-    {
-        return $this->hasMany(Unit::class);
+        return $this->hasMany(KabupatenKota::class);
     }
 }

@@ -43,6 +43,35 @@
                 @csrf
                 <div class="card-body">
                     <div class="row">
+                        <div class="col-sm-6 mb-2">
+                            <div class="form-group">
+                                <label for="provinsi_id" class="form-label">Provinsi</label>
+                                <select class="form-control form-control-sm" name="provinsi_id" id="provinsi_id" required>
+                                    <option value="">-- Pilih Provinsi --</option>
+                                    @foreach($provinsis as $provinsi)
+                                        <option value="{{ $provinsi->id }}"
+                                            {{ (isset($data->provinsi_id) && $data->provinsi_id == $provinsi->id) ? 'selected' : '' }}>
+                                            {{ $provinsi->kode_provinsi }} - {{ $provinsi->nama_provinsi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <div class="form-group">
+                                <label for="kabupaten_kota_id" class="form-label">Kabupaten/Kota</label>
+                                <select class="form-control form-control-sm" name="kabupaten_kota_id" id="kabupaten_kota_id" required>
+                                    <option value="">-- Pilih Kabupaten/Kota --</option>
+                                    @foreach($kabupaten_kotas as $kabupaten_kota)
+                                        <option value="{{ $kabupaten_kota->id }}"
+                                            data-provinsi="{{ $kabupaten_kota->provinsi_id }}"
+                                            {{ (isset($data->kabupaten_kota_id) && $data->kabupaten_kota_id == $kabupaten_kota->id) ? 'selected' : '' }}>
+                                            {{ $kabupaten_kota->kode_kabupaten_kota }} - {{ $kabupaten_kota->nama_kabupaten_kota }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-sm-3 mb-2">
                             <div class="form-group">
                                 <label for="kode_bidang" class="form-label">Kode Bidang</label>
@@ -74,4 +103,25 @@
 @endsection
 
 @section('importfootAppend')
+<script>
+    $(document).ready(function() {
+        $('#kabupaten_kota_id').on('change', function() {
+            var provinsiId = $(this).find('option:selected').data('provinsi');
+            if(provinsiId){
+                $('#provinsi_id').val(provinsiId).trigger('change');
+            }
+        });
+
+        $('#provinsi_id').on('change', function() {
+            var selectedKabupatenKota = $('#kabupaten_kota_id').find('option:selected');
+            var provinsiId = $(this).val();
+
+            if(selectedKabupatenKota.length && selectedKabupatenKota.data('provinsi') != provinsiId){
+                $('#kabupaten_kota_id').val('').trigger('change');
+            }
+        });
+        
+        $('#kabupaten_kota_id').trigger('change');
+    });
+</script>
 @endsection

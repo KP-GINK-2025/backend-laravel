@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\klasifikasiInstansi\Provinsi;
+use App\Models\klasifikasiInstansi\KabupatenKota;
 
 class DatabaseSeeder extends Seeder
 {
@@ -186,5 +188,18 @@ class DatabaseSeeder extends Seeder
         // foreach ($permissions as $permission) {
         //     Permission::create(['name' => $permission]);
         // }
+
+        // Tambahkan data Provinsi
+        $provinsi = Provinsi::create([
+            'kode_provinsi' => 18,
+            'nama_provinsi' => 'Lampung',
+        ]);
+
+        // Tambahkan data Kabupaten/Kota
+        KabupatenKota::create([
+            'kode_kabupaten_kota' => 0,
+            'nama_kabupaten_kota' => 'PEMERINTAH PROVINSI LAMPUNG',
+            'provinsi_id' => $provinsi->id, // relasi ke provinsi
+        ]);
     }
 }
