@@ -4,6 +4,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin as Admin;
 use App\Http\Controllers\Admin\klasifikasiInstansi as KlasifikasiInstansi;
+use App\Http\Controllers\Admin\klasifikasiAset as klasifikasiAset;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\FrontendController;
 
@@ -43,6 +44,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('unit', KlasifikasiInstansi\UnitController::class);
     Route::resource('subunit', KlasifikasiInstansi\SubUnitController::class);
     Route::resource('upb', KlasifikasiInstansi\UpbController::class);
+
+    Route::resource('akunaset', klasifikasiAset\AkunAsetController::class);
+    Route::resource('kelompokaset', klasifikasiAset\KelompokAsetController::class);
 
     Route::get('profile', [Admin\ProfileController::class, 'index']);
     Route::put('profile/{id}', [Admin\ProfileController::class, 'update']);

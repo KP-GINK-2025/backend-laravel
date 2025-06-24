@@ -157,6 +157,9 @@ class DatabaseSeeder extends Seeder
             'upb-create',
             'upb-edit',
             'upb-delete',
+            'akunaset-list',
+            'akunaset-create',
+            'kelompokaset-list',
         ];
 
         foreach ($permissions as $permission) {
