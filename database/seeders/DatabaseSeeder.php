@@ -164,6 +164,7 @@ class DatabaseSeeder extends Seeder
             'kelompokaset-list',
             'jenisaset-list',
             'objekaset-list',
+
         ];
 
         foreach ($permissions as $permission) {

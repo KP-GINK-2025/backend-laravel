@@ -5,6 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+
     /**
      * Run the migrations.
      */
@@ -13,6 +14,7 @@ return new class extends Migration {
         Schema::create('jenis_asets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kelompok_aset_id')->constrained()->onDelete('cascade');
+
             $table->string('kode_jenis_aset')->unique();
             $table->string('nama_jenis_aset')->unique();
             $table->string('kode', 50)->default('');

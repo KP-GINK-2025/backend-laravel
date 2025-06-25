@@ -48,6 +48,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('jenisaset', klasifikasiAset\JenisAsetController::class);
     Route::resource('objekaset', klasifikasiAset\ObjekAsetController::class);
 
+
     Route::get('profile', [Admin\ProfileController::class, 'index']);
     Route::put('profile/{id}', [Admin\ProfileController::class, 'update']);
     Route::get('profile/edit', [Admin\ProfileController::class, 'edit']);
