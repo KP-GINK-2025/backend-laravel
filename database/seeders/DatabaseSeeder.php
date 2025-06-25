@@ -160,6 +160,7 @@ class DatabaseSeeder extends Seeder
             'akunaset-list',
             'akunaset-create',
             'kelompokaset-list',
+            'jenisaset-list',
         ];
 
         foreach ($permissions as $permission) {
