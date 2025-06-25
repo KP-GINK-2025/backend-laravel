@@ -108,6 +108,11 @@
             @if (auth()->user()->hasPermissionTo('jenisaset-list') || auth()->user()->hasRole('Super Admin'))
                 <li><a href="admin/jenisaset"><i class="fa-solid fa-users"></i> <span>Jenis Aset</span></a></li>
             @endif
+
+            @if (auth()->user()->hasPermissionTo('objekaset-list') || auth()->user()->hasRole('Super Admin'))
+                <li><a href="admin/objekaset"><i class="fa-solid fa-users"></i> <span>Objek Aset</span></a></li>
+            @endif
+
         </ul>
     </div>
 @endsection
