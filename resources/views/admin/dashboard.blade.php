@@ -105,6 +105,9 @@
             @if (auth()->user()->hasPermissionTo('kelompokaset-list') || auth()->user()->hasRole('Super Admin'))
                 <li><a href="admin/kelompokaset"><i class="fa-solid fa-users"></i> <span>Kelompok Aset</span></a></li>
             @endif
+            @if (auth()->user()->hasPermissionTo('jenisaset-list') || auth()->user()->hasRole('Super Admin'))
+                <li><a href="admin/jenisaset"><i class="fa-solid fa-users"></i> <span>Jenis Aset</span></a></li>
+            @endif
         </ul>
     </div>
 @endsection
