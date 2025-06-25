@@ -45,11 +45,42 @@
                     <div class="row">
                         <div class="col-sm-6 mb-2">
                             <div class="form-group">
+                                <label for="provinsi_id" class="form-label">Provinsi</label>
+                                <select class="form-control form-control-sm" name="provinsi_id" id="provinsi_id" required>
+                                    <option value="">-- Pilih Provinsi --</option>
+                                    @foreach($provinsis as $provinsi)
+                                        <option value="{{ $provinsi->id }}"
+                                            {{ (isset($data->provinsi_id) && $data->provinsi_id == $provinsi->id) ? 'selected' : '' }}>
+                                            {{ $provinsi->kode_provinsi }} - {{ $provinsi->nama_provinsi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <div class="form-group">
+                                <label for="kabupaten_kota_id" class="form-label">Kabupaten/Kota</label>
+                                <select class="form-control form-control-sm" name="kabupaten_kota_id" id="kabupaten_kota_id" required>
+                                    <option value="">-- Pilih Kabupaten/Kota --</option>
+                                    @foreach($kabupaten_kotas as $kabupaten_kota)
+                                        <option value="{{ $kabupaten_kota->id }}"
+                                            data-provinsi="{{ $kabupaten_kota->provinsi_id }}"
+                                            {{ (isset($data->kabupaten_kota_id) && $data->kabupaten_kota_id == $kabupaten_kota->id) ? 'selected' : '' }}>
+                                            {{ $kabupaten_kota->kode_kabupaten_kota }} - {{ $kabupaten_kota->nama_kabupaten_kota }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <div class="form-group">
                                 <label for="bidang_id" class="form-label">Bidang</label>
                                 <select class="form-control form-control-sm" name="bidang_id" id="bidang_id" required>
                                     <option value="">-- Pilih Bidang --</option>
                                     @foreach($bidangs as $bidang)
                                         <option value="{{ $bidang->id }}"
+                                            data-provinsi="{{ $bidang->kabupaten_kota->provinsi_id ?? '' }}"
+                                            data-kabupaten_kota="{{ $bidang->kabupaten_kota_id ?? '' }}"
                                             {{ (isset($data['bidang_id']) && $data['bidang_id'] == $bidang->id) ? 'selected' : '' }}>
                                             {{ $bidang->kode_bidang }} - {{ $bidang->nama_bidang }}
                                         </option>
@@ -88,4 +119,39 @@
 @endsection
 
 @section('importfootAppend')
+<script>
+        $(document).ready(function() {
+            $('#bidang_id').on('change', function() {
+                var selected = $(this).find('option:selected');
+                var provinsiId = selected.data('provinsi');
+                var kabupaten_kotaId = selected.data('kabupaten_kota');
+                if(provinsiId){
+                    $('#provinsi_id').val(provinsiId);
+                }
+                if(kabupaten_kotaId){
+                    $('#kabupaten_kota_id').val(kabupaten_kotaId);
+                }
+            });
+
+            // Saat kabupaten_kota dipilih, provinsi otomatis terisi sesuai relasi kabupaten_kota
+            $('#kabupaten_kota_id').on('change', function() {
+                var provinsiId = $(this).find('option:selected').data('provinsi');
+                if(provinsiId){
+                    $('#provinsi_id').val(provinsiId);
+                }
+            });
+
+            // Saat provinsi diganti manual, reset kabupaten_kota
+            $('#provinsi_id').on('change', function() {
+                $('#kabupaten_kota_id').val('');
+            });
+
+            // Saat halaman load, jika sub kabupaten_kota sudah terisi, isi provinsi & kabupaten_kota sesuai relasi sub kabupaten_kota
+            if($('#provinsi_id').val()){
+                $('#provinsi_id').trigger('change');
+            } else if($('#kabupaten_kota_id').val()){
+                $('#kabupaten_kota_id').trigger('change');
+            }
+        });
+    </script>
 @endsection
