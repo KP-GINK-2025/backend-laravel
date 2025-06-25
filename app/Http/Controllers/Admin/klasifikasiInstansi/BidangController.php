@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\klasifikasiInstansi;
 
 use App\Models\User;
-use App\Models\klasifikasiInstansi\Bidang;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +10,9 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use App\Models\klasifikasiInstansi\Bidang;
+use App\Models\klasifikasiInstansi\Provinsi;
+use App\Models\klasifikasiInstansi\KabupatenKota;
 
 class BidangController extends Controller
 {
@@ -35,7 +37,7 @@ class BidangController extends Controller
         ];
 
         if ($request->ajax()) {
-            $data = Bidang::all();
+            $data = Bidang::with('kabupaten_kota.provinsi')->get();
             return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($row) {
                 $actionBtn = '<div class="dropdown">
                 <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog fa-fw"></i> Aksi</button>
@@ -43,6 +45,10 @@ class BidangController extends Controller
                 <li><a class="dropdown-item" href="admin/bidang/' . $row->id . '/edit">Ubah</a></li>
                 <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-id="' . $row->id . '" class="delete dropdown-item">Hapus</a></li></ul></div>';
                 return $actionBtn;
+            })->addColumn('provinsi', function ($row) {
+                return ($row->kabupaten_kota && $row->kabupaten_kota->provinsi) ? $row->kabupaten_kota->provinsi->kode_provinsi . ' - ' . $row->kabupaten_kota->provinsi->nama_provinsi : '-';
+            })->addColumn('kabupaten_kota', function ($row) {
+                return $row->kabupaten_kota ? $row->kabupaten_kota->kode_kabupaten_kota . ' - ' . $row->kabupaten_kota->nama_kabupaten_kota : '-';
             })->rawColumns(['action'])->make(true);
         }
         return view('admin.bidang.index', compact('config', 'breadcrumbs'));
@@ -68,7 +74,9 @@ class BidangController extends Controller
             ['disabled' => false, 'url' => 'admin/bidang', 'title' => 'Bidang'],
             ['disabled' => true, 'url' => '#', 'title' => 'Tambah'],
         ];
-        return view('admin.bidang.form', compact('config', 'breadcrumbs'));
+        $provinsis = Provinsi::all();
+        $kabupaten_kotas = KabupatenKota::with('provinsi')->get();
+        return view('admin.bidang.form', compact('config', 'breadcrumbs', 'kabupaten_kotas', 'provinsis'));
     }
 
     /**
@@ -77,10 +85,16 @@ class BidangController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'provinsi_id' => 'required|exists:provinsis,id',
+            'kabupaten_kota_id' => 'required|exists:kabupaten_kotas,id',
             'kode_bidang' => 'required|max:255|unique:bidangs,kode_bidang',
             'nama_bidang' => 'required|max:255',
             'kode' => 'required',
         ], [
+            'kabupaten_kota_id.required' => 'kabupaten_kota harus dipilih',
+            'kabupaten_kota_id.exists' => 'kabupaten_kota tidak valid',
+            'provinsi_id.required' => 'provinsi harus dipilih',
+            'provinsi_id.exists' => 'provinsi tidak valid',
             'kode_bidang' => ':attribute harus diisi',
             'kode_bidang.unique' => 'Kode bidang sudah terdaftar',
             'nama_bidang' => ':attribute harus diisi',
@@ -134,8 +148,9 @@ class BidangController extends Controller
             ['disabled' => false, 'url' => 'admin/bidang', 'title' => 'Bidang'],
             ['disabled' => true, 'url' => '#', 'title' => 'Edit'],
         ];
-
-        return view('admin.bidang.form', compact('config', 'breadcrumbs', 'data'));
+        $provinsis = Provinsi::all();
+        $kabupaten_kotas = KabupatenKota::with('provinsi')->get();
+        return view('admin.bidang.form', compact('config', 'breadcrumbs', 'data', 'provinsis', 'kabupaten_kotas'));
     }
 
     /**
@@ -144,10 +159,13 @@ class BidangController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'kode_bidang' => 'required|max:255|unique:bidangs,kode_bidang',
+            'kabupaten_kota_id' => 'required|exists:kabupaten_kotas,id',
+            'kode_bidang' => 'required|max:255|unique:bidangs,kode_bidang,' . $id,
             'nama_bidang' => 'required|max:255',
             'kode' => 'required',
         ], [
+            'kabupaten_kota_id.required' => 'kabupaten_kota harus dipilih',
+            'kabupaten_kota_id.exists' => 'kabupaten_kota tidak valid',
             'kode_bidang' => ':attribute harus diisi',
             'kode_bidang.unique' => 'Kode bidang sudah terdaftar',
             'nama_bidang' => ':attribute harus diisi',
@@ -157,8 +175,8 @@ class BidangController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        $unit = Bidang::findOrFail($id);
-        $unit->update($validator->validated());
+        $bidang = Bidang::findOrFail($id);
+        $bidang->update($validator->validated());
 
         return response()->json([
             'message' => 'Data berhasil diupdate',

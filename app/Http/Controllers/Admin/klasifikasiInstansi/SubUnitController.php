@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Admin\klasifikasiInstansi;
 
-use App\Models\klasifikasiInstansi\Bidang;
-use App\Models\klasifikasiInstansi\Unit;
 use App\Models\Setting;
-use App\Models\klasifikasiInstansi\SubUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\klasifikasiInstansi\Unit;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use App\Models\klasifikasiInstansi\Bidang;
+use App\Models\klasifikasiInstansi\SubUnit;
+use App\Models\klasifikasiInstansi\Provinsi;
+use App\Models\klasifikasiInstansi\KabupatenKota;
 
 class SubUnitController extends Controller
 {
@@ -33,7 +35,7 @@ class SubUnitController extends Controller
         ];
 
         if ($request->ajax()) {
-            $data = SubUnit::with('unit.bidang')->get();
+            $data = SubUnit::with('unit.bidang.kabupaten_kota.provinsi')->get();
             return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($row) {
                 $actionBtn = '<div class="dropdown">
                     <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog fa-fw"></i> Aksi</button>
@@ -41,6 +43,14 @@ class SubUnitController extends Controller
                     <li><a class="dropdown-item" href="admin/subunit/' . $row->id . '/edit">Ubah</a></li>
                     <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-id="' . $row->id . '" class="delete dropdown-item">Hapus</a></li></ul></div>';
                 return $actionBtn;
+            })->addColumn('provinsi', function ($row) {
+                return ($row->unit && $row->unit->bidang && $row->unit->bidang->kabupaten_kota && $row->unit->bidang->kabupaten_kota->provinsi)
+                    ? $row->unit->bidang->kabupaten_kota->provinsi->kode_provinsi . ' - ' . $row->unit->bidang->kabupaten_kota->provinsi->nama_provinsi
+                    : '-';
+            })->addColumn('kabupaten_kota', function ($row) {
+                return ($row->unit && $row->unit->bidang && $row->unit->bidang->kabupaten_kota)
+                    ? $row->unit->bidang->kabupaten_kota->kode_kabupaten_kota . ' - ' . $row->unit->bidang->kabupaten_kota->nama_kabupaten_kota
+                    : '-';
             })->addColumn('bidang', function ($row) {
                 return ($row->unit && $row->unit->bidang) ? $row->unit->bidang->kode_bidang . ' - ' . $row->unit->bidang->nama_bidang : '-';
             })->addColumn('unit', function ($row) {
@@ -70,9 +80,11 @@ class SubUnitController extends Controller
             ['disabled' => false, 'url' => 'admin/subunit', 'title' => 'Sub Unit'],
             ['disabled' => true, 'url' => '#', 'title' => 'Tambah'],
         ];
-        $bidangs = Bidang::all();
-        $units = Unit::with('bidang')->get();
-        return view('admin.subunit.form', compact('config', 'breadcrumbs', 'units', 'bidangs'));
+        $provinsis = Provinsi::all();
+        $kabupaten_kotas = KabupatenKota::with('provinsi')->get();
+        $bidangs = Bidang::with('kabupaten_kota')->get();
+        $units = Unit::with(relations: 'bidang')->get();
+        return view('admin.subunit.form', compact('config', 'breadcrumbs', 'units', 'bidangs', 'kabupaten_kotas', 'provinsis'));
     }
 
     /**
@@ -81,12 +93,18 @@ class SubUnitController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'provinsi_id' => 'required|exists:provinsis,id',
+            'kabupaten_kota_id' => 'required|exists:kabupaten_kotas,id',
             'bidang_id' => 'required|exists:bidangs,id',
             'unit_id' => 'required|exists:units,id',
             'kode_sub_unit' => 'required|max:255|unique:sub_units,kode_sub_unit',
             'nama_sub_unit' => 'required|max:255',
             'kode' => 'required',
         ], [
+            'provinsi_id.required' => 'provinsi harus dipilih',
+            'provinsi_id.exists' => 'provinsi tidak valid',
+            'kabupaten_kota_id.required' => 'kabupaten_kota harus dipilih',
+            'kabupaten_kota_id.exists' => 'kabupaten_kota tidak valid',
             'bidang_id.required' => 'Bidang harus dipilih',
             'bidang_id.exists' => 'Bidang tidak valid',
             'unit_id.required' => 'unit harus dipilih',
@@ -128,7 +146,9 @@ class SubUnitController extends Controller
     public function edit($id)
     {
         $data = SubUnit::findOrFail($id);
-        $bidangs = Bidang::all();
+        $provinsis = Provinsi::all();
+        $kabupaten_kotas = KabupatenKota::with('provinsi')->get();
+        $bidangs = Bidang::with('kabupaten_kota')->get();
         $units = Unit::with('bidang')->get();
 
         $setting = Setting::whereIn('name', ['web_title', 'web_description'])->get();
@@ -147,7 +167,7 @@ class SubUnitController extends Controller
             ['disabled' => true, 'url' => '#', 'title' => 'Edit'],
         ];
 
-        return view('admin.subunit.form', compact('config', 'breadcrumbs', 'data', 'units', 'bidangs'));
+        return view('admin.subunit.form', compact('config', 'breadcrumbs', 'data', 'units', 'bidangs', 'kabupaten_kotas', 'provinsis'));
     }
 
     /**
@@ -156,12 +176,18 @@ class SubUnitController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
+            'provinsi_id' => 'required|exists:provinsis,id',
+            'kabupaten_kota_id' => 'required|exists:kabupaten_kotas,id',
             'bidang_id' => 'required|exists:bidangs,id',
             'unit_id' => 'required|exists:units,id',
             'kode_sub_unit' => 'required|max:255|unique:sub_units,kode_sub_unit,' . $id,
             'nama_sub_unit' => 'required|max:255',
             'kode' => 'required',
         ], [
+            'provinsi_id.required' => 'provinsi harus dipilih',
+            'provinsi_id.exists' => 'provinsi tidak valid',
+            'kabupaten_kota_id.required' => 'kabupaten_kota harus dipilih',
+            'kabupaten_kota_id.exists' => 'kabupaten_kota tidak valid',
             'bidang_id.required' => 'Bidang harus dipilih',
             'bidang_id.exists' => 'Bidang tidak valid',
             'unit_id.required' => 'unit harus dipilih',

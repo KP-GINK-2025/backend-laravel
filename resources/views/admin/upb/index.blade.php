@@ -44,6 +44,8 @@
                     <thead>
                         <tr>
                             <th>Action</th>
+                            <th>Provinsi</th>
+                            <th>Kabupaten/Kota</th>
                             <th>Bidang</th>
                             <th>Unit</th>
                             <th>Sub Unit</th>
@@ -115,6 +117,14 @@
                         className: 'text-center',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'provinsi',
+                        name: 'provinsi',
+                    },
+                    {
+                        data: 'kabupaten_kota',
+                        name: 'kabupaten_kota',
                     },
                     {
                         data: 'bidang',
