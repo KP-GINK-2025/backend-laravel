@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Admin\klasifikasiInstansi;
 
-use App\Models\klasifikasiInstansi\Upb;
-use App\Models\klasifikasiInstansi\Unit;
-use App\Models\klasifikasiInstansi\Bidang;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\klasifikasiInstansi\SubUnit;
+use App\Models\klasifikasiInstansi\Upb;
+use App\Models\klasifikasiInstansi\Unit;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use App\Models\klasifikasiInstansi\Bidang;
+use App\Models\klasifikasiInstansi\SubUnit;
+use App\Models\klasifikasiInstansi\Provinsi;
+use App\Models\klasifikasiInstansi\KabupatenKota;
 
 class UpbController extends Controller
 {
@@ -34,7 +36,7 @@ class UpbController extends Controller
         ];
 
         if ($request->ajax()) {
-            $data = Upb::with('sub_unit.unit.bidang')->get();
+            $data = Upb::with('sub_unit.unit.bidang.kabupaten_kota.provinsi')->get();
             return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($row) {
                 $actionBtn = '<div class="dropdown">
                     <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog fa-fw"></i> Aksi</button>
@@ -42,6 +44,14 @@ class UpbController extends Controller
                     <li><a class="dropdown-item" href="admin/upb/' . $row->id . '/edit">Ubah</a></li>
                     <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalDelete" data-bs-id="' . $row->id . '" class="delete dropdown-item">Hapus</a></li></ul></div>';
                 return $actionBtn;
+            })->addColumn('provinsi', function ($row) {
+                return ($row->sub_unit && $row->sub_unit->unit && $row->sub_unit->unit->bidang && $row->sub_unit->unit->bidang->kabupaten_kota && $row->sub_unit->unit->bidang->kabupaten_kota->provinsi)
+                    ? $row->sub_unit->unit->bidang->kabupaten_kota->provinsi->kode_provinsi . ' - ' . $row->sub_unit->unit->bidang->kabupaten_kota->provinsi->nama_provinsi
+                    : '-';
+            })->addColumn('kabupaten_kota', function ($row) {
+                return ($row->sub_unit && $row->sub_unit->unit && $row->sub_unit->unit->bidang && $row->sub_unit->unit->bidang->kabupaten_kota)
+                    ? $row->sub_unit->unit->bidang->kabupaten_kota->kode_kabupaten_kota . ' - ' . $row->sub_unit->unit->bidang->kabupaten_kota->nama_kabupaten_kota
+                    : '-';
             })->addColumn('bidang', function ($row) {
                 return ($row->sub_unit && $row->sub_unit->unit && $row->sub_unit->unit->bidang)
                     ? $row->sub_unit->unit->bidang->kode_bidang . ' - ' . $row->sub_unit->unit->bidang->nama_bidang : '-';
@@ -76,10 +86,12 @@ class UpbController extends Controller
             ['disabled' => false, 'url' => 'admin/upb', 'title' => 'UPB'],
             ['disabled' => true, 'url' => '#', 'title' => 'Tambah'],
         ];
-        $bidangs = Bidang::all();
-        $units = Unit::with('bidang')->get();
+        $provinsis = Provinsi::all();
+        $kabupaten_kotas = KabupatenKota::with('provinsi')->get();
+        $bidangs = Bidang::with('kabupaten_kota')->get();
+        $units = Unit::with(relations: 'bidang')->get();
         $sub_units = SubUnit::with('unit')->get();
-        return view('admin.upb.form', compact('config', 'breadcrumbs', 'sub_units', 'units', 'bidangs'));
+        return view('admin.upb.form', compact('config', 'breadcrumbs', 'sub_units', 'units', 'bidangs', 'kabupaten_kotas', 'provinsis'));
     }
 
     /**
@@ -88,6 +100,8 @@ class UpbController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'provinsi_id' => 'required|exists:provinsis,id',
+            'kabupaten_kota_id' => 'required|exists:kabupaten_kotas,id',
             'bidang_id' => 'required|exists:bidangs,id',
             'unit_id' => 'required|exists:units,id',
             'sub_unit_id' => 'required|exists:sub_units,id',
@@ -95,6 +109,10 @@ class UpbController extends Controller
             'nama_upb' => 'required|max:255',
             'kode' => 'required',
         ], [
+            'provinsi_id.required' => 'provinsi harus dipilih',
+            'provinsi_id.exists' => 'provinsi tidak valid',
+            'kabupaten_kota_id.required' => 'kabupaten_kota harus dipilih',
+            'kabupaten_kota_id.exists' => 'kabupaten_kota tidak valid',
             'bidang_id.required' => 'Bidang harus dipilih',
             'bidang_id.exists' => 'Bidang tidak valid',
             'unit_id.required' => 'unit harus dipilih',
@@ -137,9 +155,10 @@ class UpbController extends Controller
      */
     public function edit($id)
     {
-        $data = Upb::findOrFail($id);
-        $bidangs = Bidang::all();
-        $units = Unit::with('bidang')->get();
+        $provinsis = Provinsi::all();
+        $kabupaten_kotas = KabupatenKota::with('provinsi')->get();
+        $bidangs = Bidang::with('kabupaten_kota')->get();
+        $units = Unit::with(relations: 'bidang')->get();
         $sub_units = SubUnit::with('unit')->get();
 
         $setting = Setting::whereIn('name', ['web_title', 'web_description'])->get();
@@ -158,7 +177,8 @@ class UpbController extends Controller
             ['disabled' => true, 'url' => '#', 'title' => 'Edit'],
         ];
 
-        return view('admin.upb.form', compact('config', 'breadcrumbs', 'data', 'sub_units', 'units', 'bidangs'));
+        return view('admin.upb.form', compact('config', 'breadcrumbs', 'data', 'sub_units', 'units', 'bidangs', 'kabupaten_kotas', 'provinsis'))
+            ->with('data', Upb::findOrFail($id));
     }
 
     /**
@@ -167,6 +187,8 @@ class UpbController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
+            'provinsi_id' => 'required|exists:provinsis,id',
+            'kabupaten_kota_id' => 'required|exists:kabupaten_kotas,id',
             'bidang_id' => 'required|exists:bidangs,id',
             'unit_id' => 'required|exists:units,id',
             'sub_unit_id' => 'required|exists:sub_units,id',
@@ -174,6 +196,10 @@ class UpbController extends Controller
             'nama_upb' => 'required|max:255',
             'kode' => 'required',
         ], [
+            'provinsi_id.required' => 'provinsi harus dipilih',
+            'provinsi_id.exists' => 'provinsi tidak valid',
+            'kabupaten_kota_id.required' => 'kabupaten_kota harus dipilih',
+            'kabupaten_kota_id.exists' => 'kabupaten_kota tidak valid',
             'bidang_id.required' => 'Bidang harus dipilih',
             'bidang_id.exists' => 'Bidang tidak valid',
             'unit_id.required' => 'unit harus dipilih',
