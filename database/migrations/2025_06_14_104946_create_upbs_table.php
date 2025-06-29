@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('upbs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sub_unit_id')->constrained()->onDelete('cascade');
-            $table->string('kode_upb')->unique();
+            $table->integer('kode_upb')->unique();
             $table->string('nama_upb')->unique();
             $table->string('kode', 50)->default('');
             $table->timestamps();

@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('sub_units', function (Blueprint $table) {
             $table->id();
             $table->foreignId('unit_id')->constrained()->onDelete('cascade');
-            $table->string('kode_sub_unit')->unique();
+            $table->integer('kode_sub_unit')->unique();
             $table->string('nama_sub_unit')->unique();
             $table->string('kode', 50)->default('');
             $table->timestamps();

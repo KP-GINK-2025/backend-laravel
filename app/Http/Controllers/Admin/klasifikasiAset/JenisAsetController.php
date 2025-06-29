@@ -181,9 +181,7 @@ class JenisAsetController extends Controller
         return response()->json([
             'message' => 'Data berhasil diupdate',
 
-
             'redirect' => url('admin/jenisaset')
-
         ]);
     }
 

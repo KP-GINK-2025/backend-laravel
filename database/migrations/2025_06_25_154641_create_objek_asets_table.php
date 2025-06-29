@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('objek_asets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('jenis_aset_id')->constrained()->onDelete('cascade');
-            $table->string('kode_objek_aset')->unique();
+            $table->integer('kode_objek_aset')->unique();
             $table->string('nama_objek_aset')->unique();
             $table->string('kode', 50)->default('');
             $table->timestamps();
